@@ -10,7 +10,8 @@ import (
 var projectName string
 
 var initCmd = &cobra.Command{
-	Use: "init",
+	Use: "init -n|--name <name>",
+	DisableFlagsInUseLine: true,
 	Short: "create virtual environment",
 	RunE: func(cmd *cobra.Command, args []string) error {
 
