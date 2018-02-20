@@ -42,8 +42,14 @@ var initCmd = &cobra.Command{
 		}
 
 		virtualPath = func() string {p,_:=filepath.Abs(virtualPath);return p}()
-		if _, err := os.Stat(virtualPath); os.IsNotExist(err) {
+		pathInfo, pathErr := os.Stat(virtualPath)
+
+		if os.IsNotExist(pathErr) {
 			return errors.New("gopath can't be used\n")
+		}
+
+		if !pathInfo.Mode().IsDir() {
+			return errors.New("gopath isn't directory\n")
 		}
 
 		fmt.Println("set virtual GOPATH \"" + filtered + "\" in \"" + virtualPath + "\"")
