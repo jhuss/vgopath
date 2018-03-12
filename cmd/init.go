@@ -2,11 +2,9 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"fmt"
 	"regexp"
 	"errors"
-	"os"
-	"path/filepath"
+	"vgopath/shellscript"
 )
 
 var projectName string
@@ -24,35 +22,16 @@ var initCmd = &cobra.Command{
 		}
 
 		r, _ := regexp.Compile("[a-z0-9]+")
-		filtered := r.FindString(projectName)
+		venvName := r.FindString(projectName)
 
-		if filtered != projectName {
+		if venvName != projectName {
 			return errors.New("name can be only alphanumeric\n")
 		}
 
-		// check path
-		if virtualPath == "" {
-			currentDir, wdErr := os.Getwd()
-
-			if wdErr != nil {
-				return errors.New("can't get path for virtual GOPATH\n")
-			}
-
-			virtualPath = currentDir
+		_, err := shellscript.Create(venvName, virtualPath)
+		if err != nil {
+			return err
 		}
-
-		virtualPath = func() string {p,_:=filepath.Abs(virtualPath);return p}()
-		pathInfo, pathErr := os.Stat(virtualPath)
-
-		if os.IsNotExist(pathErr) {
-			return errors.New("gopath can't be used\n")
-		}
-
-		if !pathInfo.Mode().IsDir() {
-			return errors.New("gopath isn't directory\n")
-		}
-
-		fmt.Println("set virtual GOPATH \"" + filtered + "\" in \"" + virtualPath + "\"")
 
 		return nil
 	},
