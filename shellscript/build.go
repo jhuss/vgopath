@@ -1,12 +1,10 @@
 package shellscript
 
 import (
-	"fmt"
 	"errors"
 	"os"
+	"fmt"
 )
-
-var options InitOpts
 
 func Create(venvName string, virtualPath string) (result bool, err error) {
 
@@ -33,10 +31,8 @@ func Create(venvName string, virtualPath string) (result bool, err error) {
 	}
 
 	// all ok, set values
-	options.VenvName = venvName
-	options.Gopath = virtualPath
-
-	fmt.Println("set virtual GOPATH \"" + venvName + "\" in \"" + virtualPath + "\"")
+	var scriptContent = createScript(InitOpts{VenvName:venvName,Gopath:virtualPath})()
+	fmt.Println(scriptContent)
 
 	return true, err
 }
