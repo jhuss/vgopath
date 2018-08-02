@@ -9,14 +9,14 @@ import (
 
 var projectName string
 var virtualPath string
+var outputPath string
 
 var initCmd = &cobra.Command{
 	Use: "init (-n|--name <name>) [(-p|--gopath <path>)]",
-	DisableFlagsInUseLine: true,
 	Short: "create virtual environment",
+	DisableFlagsInUseLine: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		// check name
 		if projectName == "" {
 			return errors.New("name can't be empty")
 		}
@@ -28,7 +28,7 @@ var initCmd = &cobra.Command{
 			return errors.New("name can be only alphanumeric\n")
 		}
 
-		_, err := shellscript.Create(venvName, virtualPath)
+		_, err := shellscript.Create(venvName, virtualPath, outputPath)
 		if err != nil {
 			return err
 		}
@@ -40,6 +40,7 @@ var initCmd = &cobra.Command{
 func init() {
 	initCmd.Flags().StringVarP(&projectName,"name", "n", "", "name of the virtual environment")
 	initCmd.Flags().StringVarP(&virtualPath,"gopath", "p", "", "virtual value of GOPATH")
+	initCmd.Flags().StringVarP(&outputPath,"output", "o", "", "output path for script")
 
 	initCmd.MarkFlagRequired("name")
 

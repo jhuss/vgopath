@@ -4,11 +4,10 @@ import (
 	"errors"
 	"os"
 	"fmt"
+	"io/ioutil"
 )
 
-func Create(venvName string, virtualPath string) (result bool, err error) {
-
-	// if path is not provided, set current dir
+func Create(venvName string, virtualPath string, outputPath string) (result bool, err error) {
 	if virtualPath == "" {
 		currentDir, err := os.Getwd()
 
@@ -19,7 +18,6 @@ func Create(venvName string, virtualPath string) (result bool, err error) {
 		virtualPath = currentDir
 	}
 
-	// absolute path
 	virtualPath, err = AbsolutePath(virtualPath)
 	if err != nil {
 		return false, err
@@ -30,9 +28,33 @@ func Create(venvName string, virtualPath string) (result bool, err error) {
 		return false, err
 	}
 
-	// all ok, set values
-	var scriptContent = createScript(InitOpts{VenvName:venvName,Gopath:virtualPath})()
-	fmt.Println(scriptContent)
+	if outputPath == "" {
+		currentDir, err := os.Getwd()
+
+		if err != nil {
+			return false, errors.New("can't get output path\n")
+		}
+
+		outputPath = currentDir
+	}
+
+	outputPath, err = AbsolutePath(outputPath)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = IsDir(outputPath)
+	if err != nil {
+		return false, err
+	}
+
+	var scriptContent = createScript(InitOpts{VenvName:venvName, Gopath:virtualPath})()
+
+	os.MkdirAll(fmt.Sprintf("%s/.vgopath", outputPath), 0755)
+	err = ioutil.WriteFile(fmt.Sprintf("%s/.vgopath/%s", outputPath, "activate.sh"), []byte(scriptContent), 0644)
+	if err != nil {
+		return false, err
+	}
 
 	return true, err
 }
